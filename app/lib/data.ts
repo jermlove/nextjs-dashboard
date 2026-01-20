@@ -3,6 +3,7 @@ import { neon } from '@neondatabase/serverless'
 import {
   CustomerField,
   CustomersTableType,
+  FormattedCustomersTable,
   InvoiceForm,
   InvoicesTable,
   LatestInvoiceRaw,
@@ -213,9 +214,26 @@ export async function fetchFilteredCustomers(query: string) {
       total_paid: formatCurrency(customer.total_paid),
     }));
 
-    return customers;
+    return customers as FormattedCustomersTable[];
   } catch (err) {
     console.error('Database Error:', err);
     throw new Error('Failed to fetch customer table.');
+  }
+}
+
+export async function fetchCustomersPages(query: string) {
+  try {
+    const data = await sql`SELECT COUNT(*)
+    FROM customers		
+		WHERE
+		  customers.name ILIKE ${`%${query}%`} OR
+        customers.email ILIKE ${`%${query}%`}
+  `;
+
+    const totalPages = Math.ceil(Number(data[0].count) / ITEMS_PER_PAGE);
+    return totalPages;
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch total number of customers.');
   }
 }
