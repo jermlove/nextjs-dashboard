@@ -1,44 +1,49 @@
-import NextAuth from 'next-auth';
-import { authConfig } from './auth.config';
-import Credentials from 'next-auth/providers/credentials';
-import { z } from 'zod';
-import type { User } from '@/app/lib/definitions';
-import bcrypt from 'bcrypt';
-import { neon } from '@neondatabase/serverless'
 
+import { betterAuth } from 'better-auth';
+import { neon } from '@neondatabase/serverless';
+import { drizzle } from 'drizzle-orm/neon-http';
+import { drizzleAdapter } from 'better-auth/adapters/drizzle';
+import { magicLink } from 'better-auth/plugins/magic-link';
+import { passkey } from '@better-auth/passkey';
+import { nextCookies } from 'better-auth/next-js';
+
+
+// Set up Neon client and Drizzle ORM for Neon
 const sql = neon(process.env.POSTGRES_URL!);
+const db = drizzle({client: sql});
 
-async function getUser(email: string): Promise<User | null> {
-    try {
-        const user = await sql`SELECT * FROM users WHERE email = ${email}`;
-        return user[0] as User || null;
-    } catch (error) {
-        console.error('Failed to fetch user:', error);
-        throw new Error('Failed to fetch user.');
-    }
-};
- 
-export const { auth, signIn, signOut } = NextAuth({
-  ...authConfig,
-    providers: [
-            Credentials({
-      async authorize(credentials) {
-        const parsedCredentials = z
-          .object({ email: z.string().email(), password: z.string().min(6) })
-          .safeParse(credentials);
-
-        if (parsedCredentials.success) {
-            const { email, password} = parsedCredentials.data;
-            const user = await getUser(email);
-            if(!user) return null;
-
-            const passwordsMatch = await bcrypt.compare(password, user.password); 
-            if (passwordsMatch) return user;
-        }
-
-        console.log('Invalid credentials provided');
-        return null;
-      },
-    }),
+export const auth = betterAuth({
+    // Optionally: appName: 'Next.js Dashboard',
+    // baseURL and secret are read from env by default
+    database: drizzleAdapter(
+        db, { 
+            provider: 'pg', // Use 'neon' to clarify intent, but 'postgresql' is also valid
+        }        
+    ),
+    socialProviders: {
+        google: {
+            clientId: process.env.GOOGLE_CLIENT_ID!,
+            clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+        },
+        linkedin: {
+            clientId: process.env.LINKEDIN_CLIENT_ID!,
+            clientSecret: process.env.LINKEDIN_CLIENT_SECRET!,
+        },
+        microsoft: {
+            clientId: process.env.MICROSOFT_CLIENT_ID!,
+            clientSecret: process.env.MICROSOFT_CLIENT_SECRET!,
+        },
+    },
+    plugins: [
+        magicLink({
+            async sendMagicLink({ email, url }) {
+                // TODO: Implement email sending logic here
+                // e.g., use nodemailer, resend, or any transactional email provider
+                // await sendEmail({ to: email, subject: 'Sign in', html: `<a href="${url}">Sign in</a>` });
+            },
+        }),
+        passkey(),
+        nextCookies(),
     ],
+    // Optionally: session, hooks, advanced, etc. per best practices
 });
