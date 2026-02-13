@@ -213,7 +213,7 @@ export default function SignIn() {
 							className="underline"
 							target="_blank"
 						>
-							<span className="dark:text-white/70 cursor-pointer">
+							<span className="cursor-pointer">
 								better-auth.
 							</span>
 						</Link>
