@@ -4,7 +4,7 @@ import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { neon } from "@neondatabase/serverless";
-import { signIn } from "@/auth";
+import { signIn } from "./auth-client";
 import { AuthError } from "next-auth";
 
 const sql = neon(process.env.POSTGRES_URL!);
@@ -123,7 +123,7 @@ export async function deleteInvoice(id: string) {
 
 export async function authenticate(prevState: string | undefined, formData: FormData) {
     try {
-        await signIn('credentials', formData);
+        await signIn.email(formData);
     } catch (error) {
         if (error instanceof AuthError) {
             switch(error.type) {
