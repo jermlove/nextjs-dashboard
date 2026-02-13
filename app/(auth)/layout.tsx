@@ -1,12 +1,19 @@
 import AcmeLogo from '@/app/ui/acme-logo';
 import { Suspense } from 'react';
 import { Metadata } from 'next';
+import dynamic from 'next/dynamic';
+import { AuthTabs } from '@/app/ui/auth/auth-tabs';
  
 export const metadata: Metadata = {
   title: 'Login',
 };
 
 export default function Layout({ children }: { children: React.ReactNode }) {
+  
+
+// Dynamically import the client-only AuthTabs component
+// const AuthTabs = dynamic(() => import('@/app/ui/auth/auth-tabs').then(mod => mod.AuthTabs), { ssr: false });
+
   return (
     <main className="flex items-center justify-center md:h-screen">
       <div className="relative mx-auto flex w-full max-w-[400px] flex-col space-y-2.5 p-4 md:-mt-32">
@@ -14,6 +21,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           <div className="w-32 text-white md:w-36">
             <AcmeLogo />
           </div>
+        </div>
+        <div className="mt-4">
+          <AuthTabs />
         </div>
         <Suspense fallback={<div>Loading...</div>}>
           {children}
