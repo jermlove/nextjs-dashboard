@@ -6,6 +6,7 @@ import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import { magicLink } from 'better-auth/plugins/magic-link';
 import { passkey } from '@better-auth/passkey';
 import { nextCookies } from 'better-auth/next-js';
+import * as schema from './auth-schema';
 
 
 // Set up Neon client and Drizzle ORM for Neon
@@ -18,8 +19,15 @@ export const auth = betterAuth({
     database: drizzleAdapter(
         db, { 
             provider: 'pg', // Use 'neon' to clarify intent, but 'postgresql' is also valid
+            schema, // Pass the schema object directly
         }        
     ),
+    emailAndPassword: {
+        enabled: true,
+        async sendResetPassword(data, request) {
+            // Send an email to the user with a link to reset their password
+        },
+    },
     socialProviders: {
         google: {
             clientId: process.env.GOOGLE_CLIENT_ID!,
