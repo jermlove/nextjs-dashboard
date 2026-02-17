@@ -40,6 +40,7 @@ export const auth = betterAuth({
         microsoft: {
             clientId: process.env.MICROSOFT_CLIENT_ID!,
             clientSecret: process.env.MICROSOFT_CLIENT_SECRET!,
+            authority: process.env.MICROSOFT_AUTHORITY!, // e.g., "https://login.microsoftonline.com/{tenantId}"
         },
     },
     plugins: [

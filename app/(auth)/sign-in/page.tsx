@@ -307,7 +307,7 @@ export default function SignIn() {
                   />
                 </g>
               </svg>
-              Sign in LifeScienceConnect
+              Sign in with LifeScienceConnect
             </Button>
           </div>
         </div>
