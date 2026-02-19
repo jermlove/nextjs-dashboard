@@ -6,6 +6,7 @@ import {
   boolean,
   integer,
   index,
+  json,
 } from "drizzle-orm/pg-core";
 
 export const user = pgTable("user", {

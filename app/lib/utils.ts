@@ -67,3 +67,56 @@ export const generatePagination = (currentPage: number, totalPages: number) => {
     totalPages,
   ];
 };
+
+
+// List of sensitive keys to mask
+const SENSITIVE_KEYS = [
+  'password', 'token', 'accessToken', 'refreshToken', 'idToken', 'secret', 'clientSecret', 'authorization', 'auth', 'email', 'code', 'session', 'cookie', 'apiKey', 'key', 'privateKey', 'publicKey', 'credentialID', 'value', 'otp', 'pin'
+];
+
+function maskValue(value: any) {
+  if (typeof value === 'string' && value.length > 4) {
+    return value.slice(0, 2) + '***' + value.slice(-2);
+  }
+  if (typeof value === 'string') {
+    return '***';
+  }
+  if (typeof value === 'number') {
+    return '***';
+  }
+  if (typeof value === 'object' && value !== null) {
+    return '[MASKED]';
+  }
+  return '***';
+}
+
+export function shallowLog(obj: any, maxDepth = 3, currentDepth = 0): any {
+  if (obj === null || typeof obj !== "object" || currentDepth >= maxDepth) {
+    return obj;
+  }
+  if (Array.isArray(obj)) {
+    return obj.map(item => shallowLog(item, maxDepth, currentDepth + 1));
+  }
+  const result: Record<string, any> = {};
+  for (const key in obj) {
+    if (Object.prototype.hasOwnProperty.call(obj, key)) {
+      if (SENSITIVE_KEYS.some(sensitiveKey => key.toLowerCase().includes(sensitiveKey.toLowerCase()))) {
+        result[key] = maskValue(obj[key]);
+      } else {
+        result[key] = shallowLog(obj[key], maxDepth, currentDepth + 1);
+      }
+    }
+  }
+  return result;
+}
+
+export function logWithContext(context: string, ...args: any[]) {
+  console.log(`[${context}]`, ...args);
+}
+
+export function withContext(context: string, fn: (...args: any[]) => any) {
+  return (...args: any[]) => {
+    logWithContext(context, ...args);
+    return fn(...args);
+  };
+}
