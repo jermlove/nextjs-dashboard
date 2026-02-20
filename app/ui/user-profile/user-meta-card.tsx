@@ -1,5 +1,8 @@
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
+
+import { useSession } from "@/app/lib/auth-client";
+import { User } from "@/app/lib/definitions";
 import { useModal } from "@/app/hooks/useModal";
 import { Modal } from "../modal";
 import { Button }  from "../button";
@@ -10,11 +13,48 @@ import Image from "next/image";
 
 export default function UserMetaCard() {
   const { isOpen, openModal, closeModal } = useModal();
+  const { data: session } = useSession();
+  const [user, setUser] = useState<User | null>(null);
+  // For demo, fallback values for fields not in db
+  const [bio, setBio] = useState("Team Manager");
+  const [location, setLocation] = useState("Arizona, United States");
+  const [phone, setPhone] = useState("+09 363 398 46");
+  const [social, setSocial] = useState({
+    facebook: "https://www.facebook.com/PimjoHQ",
+    x: "https://x.com/PimjoHQ",
+    linkedin: "https://www.linkedin.com/company/pimjo",
+    instagram: "https://instagram.com/PimjoHQ",
+  });
+
+  useEffect(() => {
+    async function loadUser() {
+      if (session?.user?.email) {
+        try {
+          const res = await fetch(`/api/user?email=${encodeURIComponent(session.user.email)}`);
+          if (res.ok) {
+            const dbUser = await res.json();
+            setUser(dbUser);
+          } else {
+            setUser(null);
+          }
+        } catch {
+          setUser(null);
+        }
+      }
+    }
+    loadUser();
+  }, [session?.user?.email]);
+
   const handleSave = () => {
-    // Handle save logic here
-    console.log("Saving changes...");
+    // TODO: Save logic for user meta (bio, phone, social, etc.)
     closeModal();
   };
+
+  const fullName = user?.name || "User";
+  const email = user?.email || "";
+  // TODO: Add user image if available in db
+  const image = "/images/user/owner.jpg";
+
   return (
     <>
       <div className="p-5 border border-gray-200 rounded-2xl dark:border-gray-800 lg:p-6">
@@ -24,21 +64,21 @@ export default function UserMetaCard() {
               <Image
                 width={80}
                 height={80}
-                src="/images/user/owner.jpg"
-                alt="user"
+                src={image}
+                alt={fullName}
               />
             </div>
             <div className="order-3 xl:order-2">
               <h4 className="mb-2 text-lg font-semibold text-center text-gray-800 dark:text-white/90 xl:text-left">
-                Musharof Chowdhury
+                {fullName}
               </h4>
               <div className="flex flex-col items-center gap-1 text-center xl:flex-row xl:gap-3 xl:text-left">
                 <p className="text-sm text-gray-500 dark:text-gray-400">
-                  Team Manager
+                  {bio}
                 </p>
                 <div className="hidden h-3.5 w-px bg-gray-300 dark:bg-gray-700 xl:block"></div>
                 <p className="text-sm text-gray-500 dark:text-gray-400">
-                  Arizona, United States
+                  {location}
                 </p>
               </div>
             </div>
@@ -152,34 +192,37 @@ export default function UserMetaCard() {
                 <h5 className="mb-5 text-lg font-medium text-gray-800 dark:text-white/90 lg:mb-6">
                   Social Links
                 </h5>
-
                 <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
                   <div>
                     <Label>Facebook</Label>
                     <Input
                       type="text"
-                      defaultValue="https://www.facebook.com/PimjoHQ"
+                      value={social.facebook}
+                      onChange={e => setSocial(s => ({ ...s, facebook: e.target.value }))}
                     />
                   </div>
-
                   <div>
                     <Label>X.com</Label>
-                    <Input type="text" defaultValue="https://x.com/PimjoHQ" />
+                    <Input
+                      type="text"
+                      value={social.x}
+                      onChange={e => setSocial(s => ({ ...s, x: e.target.value }))}
+                    />
                   </div>
-
                   <div>
                     <Label>Linkedin</Label>
                     <Input
                       type="text"
-                      defaultValue="https://www.linkedin.com/company/pimjo"
+                      value={social.linkedin}
+                      onChange={e => setSocial(s => ({ ...s, linkedin: e.target.value }))}
                     />
                   </div>
-
                   <div>
                     <Label>Instagram</Label>
                     <Input
                       type="text"
-                      defaultValue="https://instagram.com/PimjoHQ"
+                      value={social.instagram}
+                      onChange={e => setSocial(s => ({ ...s, instagram: e.target.value }))}
                     />
                   </div>
                 </div>
@@ -188,31 +231,26 @@ export default function UserMetaCard() {
                 <h5 className="mb-5 text-lg font-medium text-gray-800 dark:text-white/90 lg:mb-6">
                   Personal Information
                 </h5>
-
                 <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
                   <div className="col-span-2 lg:col-span-1">
-                    <Label>First Name</Label>
-                    <Input type="text" defaultValue="Musharof" />
+                    <Label>Full Name</Label>
+                    <Input type="text" value={fullName} readOnly />
                   </div>
-
-                  <div className="col-span-2 lg:col-span-1">
-                    <Label>Last Name</Label>
-                    <Input type="text" defaultValue="Chowdhury" />
-                  </div>
-
                   <div className="col-span-2 lg:col-span-1">
                     <Label>Email Address</Label>
-                    <Input type="text" defaultValue="randomuser@pimjo.com" />
+                    <Input type="text" value={email} readOnly />
                   </div>
-
                   <div className="col-span-2 lg:col-span-1">
                     <Label>Phone</Label>
-                    <Input type="text" defaultValue="+09 363 398 46" />
+                    <Input type="text" value={phone} onChange={e => setPhone(e.target.value)} />
                   </div>
-
+                  <div className="col-span-2 lg:col-span-1">
+                    <Label>Location</Label>
+                    <Input type="text" value={location} onChange={e => setLocation(e.target.value)} />
+                  </div>
                   <div className="col-span-2">
                     <Label>Bio</Label>
-                    <Input type="text" defaultValue="Team Manager" />
+                    <Input type="text" value={bio} onChange={e => setBio(e.target.value)} />
                   </div>
                 </div>
               </div>
