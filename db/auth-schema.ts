@@ -1,3 +1,25 @@
+// --- Application Data Tables (secondary schema) ---
+import { uuid } from 'drizzle-orm/pg-core';
+
+export const customer = pgTable('customers', {
+  id: text('id').primaryKey(), // UUID as string
+  name: text('name').notNull(),
+  email: text('email').notNull(),
+  image_url: text('image_url').notNull(),
+});
+
+export const invoice = pgTable('invoices', {
+  id: text('id').primaryKey(), // UUID as string
+  customerId: text('customer_id').notNull().references(() => customer.id, { onDelete: 'cascade' }),
+  amount: integer('amount').notNull(),
+  status: text('status').notNull(),
+  date: text('date').notNull(), // Store as string for compatibility with DATE
+});
+
+export const revenue = pgTable('revenue', {
+  month: text('month').primaryKey(),
+  revenue: integer('revenue').notNull(),
+});
 import { relations } from "drizzle-orm";
 import {
   pgTable,
