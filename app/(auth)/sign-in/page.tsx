@@ -34,7 +34,7 @@ export default function SignIn() {
       </CardHeader>
       <CardContent>
         <div className="grid gap-4">
-          <div className="grid gap-2">
+          {/* <div className="grid gap-2">
             <Label htmlFor="email">Email</Label>
             <Input
               id="email"
@@ -99,7 +99,7 @@ export default function SignIn() {
             ) : (
               <p>Login</p>
             )}
-          </Button>
+          </Button> */}
           <Button
             variant="secondary"
             disabled={loading}
