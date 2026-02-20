@@ -1,6 +1,8 @@
 import type { NextAuthConfig } from 'next-auth';
+import MicrosoftEntraID from 'next-auth/providers/microsoft-entra-id';
 
 export const authConfig = {
+  debug: true,
   pages: {
     signIn: "/sign-in",
   },
@@ -17,5 +19,11 @@ export const authConfig = {
       return true;
     },
   },
-  providers: [], // Add providers with an empty array for now
+  providers: [
+    MicrosoftEntraID({
+      clientId: process.env.AUTH_MICROSOFT_ENTRA_ID_ID,
+      clientSecret: process.env.AUTH_MICROSOFT_ENTRA_ID_SECRET,
+      issuer: process.env.AUTH_MICROSOFT_ENTRA_ID_ISSUER,
+    })
+   ] // Add providers with an empty array for now
 } satisfies NextAuthConfig;
