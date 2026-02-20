@@ -22,9 +22,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             <AcmeLogo />
           </div>
         </div>
-        <div className="mt-4">
+        {/* <div className="mt-4">
           <AuthTabs />
-        </div>
+        </div> */}
         <Suspense fallback={<div>Loading...</div>}>
           {children}
         </Suspense>

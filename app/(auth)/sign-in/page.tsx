@@ -6,7 +6,7 @@ import { Label } from "@/app/ui/label";
 import { Checkbox } from "@/app/ui/checkbox";
 import { useState } from "react";
 import { Loader2, Key } from "lucide-react";
-import { signIn } from "@/app/lib/auth-client";
+import { signIn } from "@/auth";
 import Link from "next/link";
 import clsx from "clsx";
 import {
@@ -34,7 +34,7 @@ export default function SignIn() {
       </CardHeader>
       <CardContent>
         <div className="grid gap-4">
-          <div className="grid gap-2">
+          {/* <div className="grid gap-2">
             <Label htmlFor="email">Email</Label>
             <Input
               id="email"
@@ -79,7 +79,7 @@ export default function SignIn() {
             className="w-full"
             disabled={loading}
             onClick={async () => {
-              await signIn.email({
+              await signIn({
                 email,
                 password,
                 rememberMe,
@@ -99,8 +99,8 @@ export default function SignIn() {
             ) : (
               <p>Login</p>
             )}
-          </Button>
-          <Button
+          </Button> */}
+          {/* <Button
             variant="secondary"
             disabled={loading}
             className="gap-2"
@@ -119,7 +119,7 @@ export default function SignIn() {
           >
             <Key size={16} />
             Sign-in with Passkey
-          </Button>
+          </Button> */}
           <div
             className={clsx(
               "w-full gap-2 flex items-center",
@@ -207,20 +207,7 @@ export default function SignIn() {
               variant="outline"
               className="w-full gap-2"
               disabled={loading}
-              onClick={async () => {
-                await signIn.social({
-                  provider: "microsoft",
-                  callbackURL: "/dashboard",
-                  fetchOptions: {
-                    onRequest: () => {
-                      setLoading(true);
-                    },
-                    onResponse: () => {
-                      setLoading(false);
-                    },
-                  },
-                });
-              }}
+              onClick={ () => signIn("microsoft-entra-id", {redirectTo:"/dashboard"})}
             >
               {/* Brand Logo SVG (from cleaned-brand-logo) */}
               <svg
