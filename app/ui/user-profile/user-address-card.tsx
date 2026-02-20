@@ -1,5 +1,7 @@
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { useSession } from "@/app/lib/auth-client";
+import { User } from "@/app/lib/definitions";
 import { useModal } from "@/app/hooks/useModal";
 import { Modal } from "../modal";
 import {Button} from "../button";
@@ -7,12 +9,45 @@ import {Input} from "../input";
 import {Label} from "../label";
 
 export default function UserAddressCard() {
+
   const { isOpen, openModal, closeModal } = useModal();
+  const { data: session } = useSession();
+  const [user, setUser] = useState<User | null>(null);
+  // Demo fallback values
+  const [country, setCountry] = useState("United States");
+  const [cityState, setCityState] = useState("Arizona, United States.");
+  const [postalCode, setPostalCode] = useState("ERT 2489");
+  const [taxId, setTaxId] = useState("AS4568384");
+
+  useEffect(() => {
+    async function loadUser() {
+      if (session?.user?.email) {
+        try {
+          const res = await fetch(`/api/user?email=${encodeURIComponent(session.user.email)}`);
+          if (res.ok) {
+            const dbUser = await res.json();
+            setUser(dbUser);
+            // If you add address fields to the user table, set them here:
+            // setCountry(dbUser.country ?? "United States");
+            // setCityState(dbUser.cityState ?? "Arizona, United States.");
+            // setPostalCode(dbUser.postalCode ?? "ERT 2489");
+            // setTaxId(dbUser.taxId ?? "AS4568384");
+          } else {
+            setUser(null);
+          }
+        } catch {
+          setUser(null);
+        }
+      }
+    }
+    loadUser();
+  }, [session?.user?.email]);
+
   const handleSave = () => {
-    // Handle save logic here
-    console.log("Saving changes...");
+    // Save logic for address fields (country, cityState, postalCode, taxId)
     closeModal();
   };
+
   return (
     <>
       <div className="p-5 border border-gray-200 rounded-2xl dark:border-gray-800 lg:p-6">
@@ -21,46 +56,41 @@ export default function UserAddressCard() {
             <h4 className="text-lg font-semibold text-gray-800 dark:text-white/90 lg:mb-6">
               Address
             </h4>
-
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-7 2xl:gap-x-32">
               <div>
                 <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
                   Country
                 </p>
                 <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                  United States
+                  {country}
                 </p>
               </div>
-
               <div>
                 <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
                   City/State
                 </p>
                 <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                  Phoenix, Arizona, United States.
+                  {cityState}
                 </p>
               </div>
-
               <div>
                 <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
                   Postal Code
                 </p>
                 <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                  ERT 2489
+                  {postalCode}
                 </p>
               </div>
-
               <div>
                 <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
                   TAX ID
                 </p>
                 <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                  AS4568384
+                  {taxId}
                 </p>
               </div>
             </div>
           </div>
-
           <button
             onClick={openModal}
             className="flex w-full items-center justify-center gap-2 rounded-full border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200 lg:inline-flex lg:w-auto"
@@ -99,22 +129,19 @@ export default function UserAddressCard() {
               <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
                 <div>
                   <Label>Country</Label>
-                  <Input type="text" defaultValue="United States" />
+                  <Input type="text" value={country} onChange={e => setCountry(e.target.value)} />
                 </div>
-
                 <div>
                   <Label>City/State</Label>
-                  <Input type="text" defaultValue="Arizona, United States." />
+                  <Input type="text" value={cityState} onChange={e => setCityState(e.target.value)} />
                 </div>
-
                 <div>
                   <Label>Postal Code</Label>
-                  <Input type="text" defaultValue="ERT 2489" />
+                  <Input type="text" value={postalCode} onChange={e => setPostalCode(e.target.value)} />
                 </div>
-
                 <div>
                   <Label>TAX ID</Label>
-                  <Input type="text" defaultValue="AS4568384" />
+                  <Input type="text" value={taxId} onChange={e => setTaxId(e.target.value)} />
                 </div>
               </div>
             </div>
