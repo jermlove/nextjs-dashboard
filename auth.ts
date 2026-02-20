@@ -5,7 +5,7 @@ import { drizzle } from 'drizzle-orm/neon-http';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import { passkey } from '@better-auth/passkey';
 import { nextCookies } from 'better-auth/next-js';
-import * as schema from './auth-schema';
+import * as schema from './db/auth-schema';
 import { createAuthMiddleware } from 'better-auth/api';
 import { logWithContext, shallowLog } from './app/lib/utils';
 
@@ -83,22 +83,22 @@ export const auth = betterAuth({
         //     clientSecret: process.env.LINKEDIN_CLIENT_SECRET!,
         // },
         microsoft: {
-            clientId: process.env.MICROSOFT_CLIENT_ID!,
-            clientSecret: process.env.MICROSOFT_CLIENT_SECRET!,            
-            authority: process.env.MICROSOFT_AUTHORITY!, // e.g., "https://login.microsoftonline.com/{tenantId}"
-            tenantId: process.env.MICROSOFT_TENANT_ID!, // e.g., "4273f212-1e06-4eaf-9f4e-5aeb44a891f1"
+            clientId: process.env.AUTH_MICROSOFT_ENTRA_ID_ID!,
+            clientSecret: process.env.AUTH_MICROSOFT_ENTRA_ID_SECRET!,            
+            authority: process.env.AUTH_MICROSOFT_ENTRA_ID_ISSUER!, // e.g., "https://login.microsoftonline.com/{tenantId}"
+            tenantId: process.env.AUTH_MICROSOFT_ENTRA_ID_TENANT_ID!, // e.g., "4273f212-1e06-4eaf-9f4e-5aeb44a891f1"
             // scope: ["openid", "profile", "email", "User.Read", "offline_access"], // Adjust scopes as needed
-            mapProfileToUser: (profile) => {
-                logWithContext("betterAuth.microsoft.mapProfileToUser", "Mapping Microsoft CIAM profile to user object:", profile);
-                return {
-                    id: profile.oid, // Use the 'oid' claim as the unique identifier for the user
-                    name: profile.name,
-                    firstName: profile.given_name,
-                    lastName: profile.family_name,
-                    email: profile.email || profile.preferred_username, // Microsoft may return email in different fields depending on the account type
-                    picture: profile.picture,
-                };
-            }
+            // mapProfileToUser: (profile) => {
+            //     logWithContext("betterAuth.microsoft.mapProfileToUser", "Mapping Microsoft CIAM profile to user object:", shallowLog(profile));
+            //     return {
+            //         id: profile.oid, // Use the 'oid' claim as the unique identifier for the user
+            //         name: profile.name,
+            //         firstName: profile.given_name,
+            //         lastName: profile.family_name,
+            //         email: profile.email || profile.preferred_username, // Microsoft may return email in different fields depending on the account type
+            //         picture: profile.picture,
+            //     };
+            // }
         },
     },
     hooks: { // Optional hooks for auth operations, useful for logging, analytics, etc.
@@ -107,13 +107,13 @@ export const auth = betterAuth({
             const debugInfo = {
                 method: ctx.method,
                 path: ctx.path,
-                id: ctx.params.id,
+                id: ctx.params?.id,
                 query : ctx.query,   
                 headers: ctx.headers, // Log request headers (will be masked by shallowLog)
                 // profile: ctx.context?.profile, // This will show the user profile data that was retrieved or created during the auth operation                          
             }
             const context = "authHooks.before";
-            logWithContext(context, "Auth operation started. Debug info:", debugInfo);            
+            logWithContext(context, "Auth operation started. Debug info:", shallowLog(debugInfo));            
         }),
         after: createAuthMiddleware(async (ctx) => {
 			// Execute after processing the request            
