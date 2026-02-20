@@ -1,7 +1,6 @@
 
 import { betterAuth } from 'better-auth';
-import { neon } from '@neondatabase/serverless';
-import { drizzle } from 'drizzle-orm/neon-http';
+import { db } from '@/app/lib/db';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import { passkey } from '@better-auth/passkey';
 import { nextCookies } from 'better-auth/next-js';
@@ -10,9 +9,7 @@ import { createAuthMiddleware } from 'better-auth/api';
 import { logWithContext, shallowLog } from './app/lib/utils';
 
 
-// Set up Neon client and Drizzle ORM for Neon
-const sql = neon(process.env.POSTGRES_URL!);
-const db = drizzle({client: sql});
+// Centralized Drizzle/Neon db instance
 
 export const auth = betterAuth({
     // Optionally: appName: 'Next.js Dashboard',
