@@ -84,6 +84,7 @@ export const auth = betterAuth({
             clientSecret: process.env.AUTH_MICROSOFT_ENTRA_ID_SECRET!,            
             authority: process.env.AUTH_MICROSOFT_ENTRA_ID_ISSUER!, // e.g., "https://login.microsoftonline.com/{tenantId}"
             tenantId: process.env.AUTH_MICROSOFT_ENTRA_ID_TENANT_ID!, // e.g., "4273f212-1e06-4eaf-9f4e-5aeb44a891f1"
+            prompt: "select_account", // Optional: forces account selection on each login
             // scope: ["openid", "profile", "email", "User.Read", "offline_access"], // Adjust scopes as needed
             // mapProfileToUser: (profile) => {
             //     logWithContext("betterAuth.microsoft.mapProfileToUser", "Mapping Microsoft CIAM profile to user object:", shallowLog(profile));
