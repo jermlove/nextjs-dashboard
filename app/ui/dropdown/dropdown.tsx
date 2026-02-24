@@ -5,10 +5,11 @@ interface DropdownProps {
   isOpen: boolean;
   onClose: () => void;
   className?: string;
+  style?: React.CSSProperties;
   children: React.ReactNode;
 }
 
-export const Dropdown: React.FC<DropdownProps> = ({ isOpen, onClose, className, children }) => {
+export const Dropdown: React.FC<DropdownProps> = ({ isOpen, onClose, className, style, children }) => {
   useEffect(() => {
     if (!isOpen) return;
     function handleClickOutside() {
@@ -22,7 +23,7 @@ export const Dropdown: React.FC<DropdownProps> = ({ isOpen, onClose, className, 
 
   if (!isOpen) return null;
   return (
-    <div className={className}>
+    <div className={className} style={style}>
       {children}
     </div>
   );

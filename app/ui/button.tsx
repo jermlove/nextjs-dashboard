@@ -2,7 +2,7 @@ import clsx from 'clsx';
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   children: React.ReactNode;
-  variant?: 'primary' | 'secondary' | 'danger'; // adjust as needed
+  variant?: 'primary' | 'secondary' | 'danger' | 'outline';
 }
 
 export function Button({ children, className, variant = 'primary', ...rest }: ButtonProps) {
@@ -12,6 +12,7 @@ export function Button({ children, className, variant = 'primary', ...rest }: Bu
     primary: 'bg-blue-500 text-white hover:bg-blue-400 focus-visible:outline-blue-500 active:bg-blue-600',
     secondary: 'bg-gray-500 text-white hover:bg-gray-400 focus-visible:outline-gray-500 active:bg-gray-600',
     danger: 'bg-red-500 text-white hover:bg-red-400 focus-visible:outline-red-500 active:bg-red-600',
+    outline: 'border border-blue-500 text-blue-500 bg-transparent hover:bg-blue-50 focus-visible:outline-blue-500 active:bg-blue-100',
   };
   return (
     <button
